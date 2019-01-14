@@ -1382,5 +1382,8 @@ body {
   }
 }
 .cid-reYZLPB8Xs {
-  background-color: #232323;
+  background-image: url("../../../assets/images/bpcbggreenroom-1920x1080.png");
+}
+.cid-reYZLPB8Xs H1 {
+  color: #232323;
 }
