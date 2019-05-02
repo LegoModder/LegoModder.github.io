@@ -1,0 +1,42 @@
+<div class="col-lg-8 equal">
+            <div class="box box-primary">
+                <div class="box-header with-border">
+                    <h3 class="box-title">
+                        <span class="fa fa-tasks fa-fw"></span>
+                        Win 1 Battle PvP Arena or Open Warrior Chest
+                    </h3>
+                </div>
+                <div class="box-body dlHackForm">
+                    <form id="ActionForm" role="form" data-toggle="validator" novalidate="true">
+                        <input type="hidden" name="game" value="sp_dc">
+                        <input type="hidden" name="packet" value="win_pvp_arena">
+                        <div class="form-group">
+                            <label>Facebook ID</label>
+                            <input type="text" name="fb_id" class="form-control dlFacebook" placeholder="Facebook ID" required="">
+                        </div>
+                        <div class="form-group">
+                            <label>Session ID</label>
+                            <input type="text" name="ss_id" class="form-control dlSession" placeholder="Session ID" required="">
+                        </div>
+                        <div class="form-group">
+    <label>Captcha</label>
+    <div class="input-group">
+        <span class="input-group-btn">
+            <a class="dlChangeCaptcha">
+                <img id="captchaImg" src="/assets/php/Captcha.php?id=">
+            </a>
+        </span>
+        <input type="text" name="captchaKey" class="form-control dlCaptcha" placeholder="Enter Captcha Text" required="">
+        <span class="input-group-btn">
+            <input type="button" style="width:120px" id="changeCaptcha" class="btn btn-primary" value="Reload Captcha">
+        </span>
+    </div>
+</div>                        <div class="form-group">
+    <div class="text-center">
+        <input type="submit" class="btn btn-primary dlRequest disabled" value="Submit">
+        <a href="/adStart" class="btn btn-link dlSkipAd"><span class="glyphicon glyphicon-hand-right"></span> Click Here Before Submit</a>
+    </div>
+</div>                    </form>
+                </div>
+            </div>
+        </div>
