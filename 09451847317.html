@@ -1,0 +1,228 @@
+$(function () {
+    var $gameSelector = $('#Game');
+    var game = $gameSelector.data('game') || "";
+    var gameName = $gameSelector.val() || "";
+    var search = [];
+    var modal = {
+            title: '#Modal .modal-title',
+            body: '#Modal .modal-body',
+            target: false,
+            data: "",
+            dataParent: "",
+            icon: function (ico) {
+                return "<span class='fa fa-" + ico + "'></span>"
+            }
+        };
+    FastClick.attach(document.body);
+    Online();
+    setTimeout(function () {
+        if ($.cookie(gameName)) {
+            var c = $.cookie(gameName);
+            c = JSON.parse(c) ? JSON.parse(c)  : false;
+            console.log(c);
+            $.each(c, function (k, v) {
+                $("input[name=" + k + "]").val(v);
+            });
+        }
+    }, 1500);
+    if (skip) {
+        $('.dlSkipAds').hide();
+        $('.dlRequests').show();
+    }
+    if (!$.cookie('use')) {
+        cAlert(
+            '#alertArea',
+            'success',
+            'Dc4u.Eu uses <b>Cookies</b>. By continuing to browse the site, you are agreeing to our use of cookies.',
+            true,
+            'dl-cookie'
+        );
+    }
+    if (!$.cookie('saveInfo')) {
+        $.cookie('saveInfo', 'yes', {expires: 30});
+        $('#saveInfo').click();
+    }
+    if ($.cookie('saveInfo') === 'yes') {
+        $('#saveInfo').click();
+    }
+    if ($.cookie('showInfo') === 'yes') {
+        $('#showInfo').click();
+    }
+    $('#saveInfo, #showInfo').change(function () {
+        if ($(this).is(':checked')) {
+            $.cookie($(this).attr('id'), 'yes', {expires: 30});
+        } else {
+            $.cookie($(this).attr('id'), 'no', {expires: 30});
+        }
+    });
+
+    $('#Modal').on('show.bs.modal', function (event) {
+        modal.target = event.relatedTarget;
+        modal.data = $(modal.target).data('popup');
+        $(modal.body).empty();
+        var actions = {
+            Key: ['key', 'Find Session Key', 'Find.php', {game: game, only: $(modal.target).data('only')}],
+            Help: ['sign', 'How To Find Session Key', 'Help.php'],
+            Cookie: ['trash-o', 'Delete Cookies', 'Cookie.php'],
+            Donate: ['gift', 'Donate', 'Donate.php']
+        };
+            var act = actions[modal.data];
+            $(modal.title).empty().html(modal.icon(act[0]) + " " + act[1]);
+            if (act[2].includes('php')) {
+                $.ajax({
+                    url: '/assets/php/Template/' + act[2],
+                    type: 'post',
+                    data: act[3] ? act[3] : "",
+                    success: function (result) {
+                        $(modal.body).html(result);
+                    }
+                });
+            } else {
+                $(modal.body).html(act[2]);
+            }
+        
+    }).on('hide.bs.modal', function () {
+        if (modal.data.indexOf('#') === 0) {
+            $(modal.dataParent).html($(modal.data));
+        }
+    });
+    $('body').on('click', '.dl-cookie .close', function (e) {
+        $.cookie('use', 'yes', {expires: 60});
+    }).on('submit', '#ActionForm', function (e) {
+        e.preventDefault();
+        $(this).closest('.box').append('<div class="overlay"><i class="fa fa-refresh fa-spin"></i></div>');
+        var Btn = $(this).find('.dlRequests'),
+            Lnk = $(this).find('.dlSkipAds'),
+            Lay = $('.overlay');
+        var Info = {};
+        $.each($(this).serializeArray(), function (k, v) {
+                Info[v.name] = v.value.trim();
+        });
+        Info['showInfo'] = $.cookie('showInfo') === "yes";
+        if ($.cookie('saveInfo') === "yes") {
+            if (!$.cookie(gameName)) cAlert('#alertArea', 'success', 'Your information was successfully stored.', true);
+        }
+                $.ajax({
+                    type: "POST",
+                    url: "/api/v1.php",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    data: JSON.stringify(Info),
+                    dataType: "json",
+                    complete: function () {
+                        Lay.remove();
+                    },
+                    success: function (res) {
+                        if (res.success) {
+                            Lnk.show();
+                            Btn.hide();
+                        }
+                        if (res.error === null) {
+                            $(".dlHackInfo").html(res.result);
+                        } else {
+                            $(".dlHackInfo").html(res.error);
+                        }
+                    },
+                    error: function (xhr) {
+                        Btn.show();
+                        Lnk.hide();
+                        $(".dlHackInfo").html("Something went wrong, please try again");
+                    }
+                });
+                delete Info['game'];
+                delete Info['packet'];
+                delete Info['captchaKey'];
+                delete Info['reward'];
+                $.cookie(gameName, JSON.stringify(Info), {expires: 3});
+    }).on('click', '.dlChangeCaptcha', function (e) {
+        e.preventDefault();
+        var img = $(this).find('img');
+        img.attr('src', img.attr('src')+Math.floor(Math.random() * 1000));
+    }).on('submit', '#InfoForm', function (e) {
+        e.preventDefault();
+        var data = $(this).serialize();
+        $(this).closest('.box').append('<div class="overlay"><i class="fa fa-refresh fa-spin"></i></div>');
+        var overlay = $('.overlay');
+        $.ajax({
+            type: 'post',
+            url: '/api/accessToken.php',
+            data: data,
+            dataType: 'json',
+            complete: function () {
+                overlay.remove();
+            },
+            success: function (res) {
+                $(".dlHackInfo").html(res.result);
+            },
+            error: function () {
+                $(".dlHackInfo").html('Something Went Wrong, Please Try Again!')
+            }
+        });
+    }).on('click', '#getRewards', function (e) {
+        var fbid = $("input[name='fb_id']").val();
+        var ssid = $("input[name='ss_id']").val();
+        var load = $('#packet').val();
+        var game = $('#Game').val();
+        if (fbid) {
+            $('select[name=reward]').html("<option>Getting Info...</option>");
+            $.ajax({
+                type: 'get',
+                url: '/api/loadInfo.php',
+                data: {
+                    fbid: fbid,
+                    ssid: ssid,
+                    load: load,
+                    game: game,
+                },
+                success: function (res) {
+                    $('select[name=reward]').html(res);
+                },
+                error: function () {
+                    alert('Failed to get rewards');
+                }
+            });
+        } else {
+            alert('Please Fill Facebook ID First');
+        }
+    }).on('click', '.dllHelp1', function (e) {
+            $('.lbllHelp1').slideToggle('slow');
+            e.preventDefault();
+    }).on('click', '.dllHelp', function (e) {
+            $('.lbllHelp').slideToggle('slow');
+            e.preventDefault();
+    });
+    
+    $('a.btn.btn-primary').each(function () {
+        var fburl = $(this).data('fblink');
+        if (fburl) {
+            $(this).attr('href', 'https://apps.facebook.com/' + fburl).attr('target', '_blank')
+        }
+    });
+    function cAlert(where, type, message, exit, id) {
+        id = id ? id + " " : "";
+        var alert = $('<div class="' + id + 'alert alert-' + type + '" role="alert"></div>');
+        alert.html(message);
+        if (exit) {
+            alert.append('<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>');
+        }
+        $(where).append(alert);
+    }
+
+    function Online() {
+        var menu = $("#On-Status").next('.dropdown-menu');
+        $.get('/assets/php/Template/On-Status.php', function (res) {
+            $('.Online').text(res.Online);
+            menu.empty();
+            var url = window.location.pathname.replace('/', '');
+            $.each(res.Pages, function (x, y) {
+                var active = y[1] === url ? "class='active'" : "";
+                if (x !== "" && isNaN(x)) {
+                    menu.append('<li ' + active + '><a href="' + y[1] + '"><p style="color:red">' + x + ': ' + y[0] + '</p></li>');
+                }
+            });
+            setTimeout(Online, 60000);
+        });
+    }
+
+});
